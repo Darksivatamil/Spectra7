@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: spectra7
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python spectra7.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: HOST
+        value: 0.0.0.0
+      - key: FERNET_KEY
+        sync: false
+      - key: ENCRYPTED_NVIDIA_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      - key: MAX_PER_TARGET_PER_DAY
+        value: "250"

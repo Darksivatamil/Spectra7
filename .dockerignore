@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+*.db
+venv/
+.venv/
+.git/
+.github/
+tests/
+example project/

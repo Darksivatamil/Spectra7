@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectra7 - Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Fira Code', monospace;
+  background: #0a0a0a;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #fff;
+}
+body::before {
+  content: '';
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 30% 20%, rgba(0,255,65,0.04) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(255,45,149,0.04) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+#matrix-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%; z-index: 0; opacity: 0.08;
+}
+.container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 20px; }
+/* ── Kali / Glassmorphism theme ── */
+header {
+  text-align: center; padding: 20px 0 10px;
+  position: relative;
+}
+header .ascii-banner {
+  font-size: 0.5em; line-height: 1.3; color: #00ff41;
+  opacity: 0.4; white-space: pre; margin-bottom: 4px;
+}
+header h1 {
+  font-size: 2.6em; font-weight: 700;
+  background: linear-gradient(135deg, #00ff41, #ff2d95, #ff0040);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 6px; text-shadow: 0 0 60px rgba(0,255,65,0.15);
+}
+header .subtitle { color: #ff2d95; font-size: 0.75em; opacity: 0.5; margin-top: 4px; letter-spacing: 4px; }
+.glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,255,65,0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.glass:hover { border-color: rgba(0,255,65,0.25); box-shadow: 0 8px 32px rgba(0,255,65,0.05); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+label {
+  display: block; color: #ff2d95; font-size: 0.75em;
+  margin-bottom: 6px; font-weight: 500; letter-spacing: 1px;
+}
+input, select, textarea, button { font-family: 'Fira Code', monospace; width: 100%; }
+input, select, textarea {
+  background: rgba(0,0,0,0.6); border: 1px solid rgba(0,255,65,0.2);
+  color: #00ff41; padding: 10px 14px; border-radius: 8px;
+  font-size: 0.9em; outline: none; transition: all 0.3s;
+}
+input:focus, select:focus, textarea:focus { border-color: #ff2d95; box-shadow: 0 0 20px rgba(255,45,149,0.12); }
+textarea { min-height: 60px; resize: vertical; }
+select option { background: #1a1a1a; color: #00ff41; }
+.btn {
+  padding: 10px 20px; border: none; border-radius: 8px;
+  font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.9em;
+  cursor: pointer; transition: all 0.3s; letter-spacing: 1px; text-transform: uppercase;
+}
+.btn-primary { background: linear-gradient(135deg, #ff2d95, #ff0040); color: #fff; box-shadow: 0 4px 15px rgba(255,45,149,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,45,149,0.5); }
+.btn-secondary { background: transparent; color: #00ff41; border: 1px solid #00ff41; }
+.btn-secondary:hover { background: rgba(0,255,65,0.08); box-shadow: 0 0 20px rgba(0,255,65,0.2); }
+.btn-danger { background: linear-gradient(135deg, #ff0040, #ff2d95); color: #fff; box-shadow: 0 4px 15px rgba(255,0,64,0.3); }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,0,64,0.5); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+.section-title {
+  color: #00ff41; font-size: 1em; font-weight: 600; margin-bottom: 14px;
+  letter-spacing: 2px; border-bottom: 1px solid rgba(0,255,65,0.12); padding-bottom: 8px;
+}
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.chip {
+  padding: 5px 12px; border-radius: 16px; font-size: 0.75em; cursor: pointer;
+  border: 1px solid rgba(0,255,65,0.25); color: #00ff41; background: transparent;
+  font-family: 'Fira Code', monospace; transition: all 0.3s;
+}
+.chip:hover, .chip.active { background: rgba(0,255,65,0.12); border-color: #00ff41; }
+.output-box {
+  background: rgba(0,0,0,0.7); border: 1px solid rgba(0,255,65,0.15); border-radius: 8px;
+  padding: 12px; max-height: 200px; overflow-y: auto; font-size: 0.82em; line-height: 1.5;
+}
+.output-box .msg-item { padding: 3px 0; border-bottom: 1px solid rgba(0,255,65,0.05); color: #00ff41; }
+.output-box .msg-item:last-child { border-bottom: none; }
+.stat-box { text-align: center; padding: 12px; }
+.stat-box .stat-value { font-size: 1.8em; font-weight: 700; color: #00ff41; }
+.stat-box .stat-label { font-size: 0.7em; color: rgba(255,255,255,0.5); margin-top: 3px; letter-spacing: 1px; }
+.toggle-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.toggle-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px;
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);
+}
+.toggle-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #ff2d95; }
+.toggle-item label { margin: 0; color: #fff; font-size: 0.75em; cursor: pointer; }
+.progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+.progress-bar .fill { height: 100%; background: linear-gradient(90deg, #ff2d95, #00ff41); transition: width 0.3s; border-radius: 3px; }
+.action-bar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.api-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78em;
+}
+.api-item .api-name { color: #00ff41; }
+.api-item .api-type { font-size: 0.65em; padding: 2px 6px; border-radius: 6px; background: rgba(255,45,149,0.15); color: #ff2d95; }
+@media (max-width: 768px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } header h1 { font-size: 1.8em; } }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: #ff2d95; border-radius: 3px; }
+.live-msg { color: #ff2d95; animation: pulse 0.5s ease-in-out; }
+@keyframes pulse { 0% { opacity: 0; } 100% { opacity: 1; } }
+/* Toast */
+.toast-container { position: fixed; top: 70px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 6px; }
+.toast {
+  padding: 10px 18px; border-radius: 8px; font-family: 'Fira Code', monospace;
+  font-size: 0.82em; color: #fff; animation: slideIn 0.3s ease; max-width: 340px;
+}
+.toast.success { background: linear-gradient(135deg, #1b5e20, #2e7d32); border: 1px solid #4caf50; }
+.toast.error { background: linear-gradient(135deg, #b71c1c, #c62828); border: 1px solid #ef5350; }
+.toast.info { background: linear-gradient(135deg, #0d47a1, #1565c0); border: 1px solid #42a5f5; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.health-score { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 600; }
+.health-good { background: rgba(0,255,65,0.15); color: #00ff41; }
+.health-bad { background: rgba(255,0,64,0.15); color: #ff0040; }
+.health-ok { background: rgba(255,165,0,0.15); color: #ffa500; }
+</style>
+</head>
+<body>
+<canvas id="matrix-canvas"></canvas>
+<div class="container">
+  <header>
+    <div class="ascii-banner">  _____ __  ______  _____  _____  __    _  _____
+ / ____/_ |/ ____|/ ____|/ ____|/ /   | |/ ____|
+( (___  | | (___ | (___ | (___ / /    | | (___
+ \___ \ | |\___ \ \___ \ \___ \ \ \    | |\___ \
+ ____) || |____) |____) |____) | |____| |____) |
+|_____/ |_|_____/|_____/|_____/ \____/ \_____/</div>
+    <h1>SPECTRA7</h1>
+    <div class="subtitle">[ BOMBING AGENT DASHBOARD ]</div>
+  </header>
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- MAIN CONTROLS -->
+  <div class="grid-2">
+    <!-- LEFT: Targets + Message -->
+    <div>
+      <div class="glass">
+        <div class="section-title">> TARGETS</div>
+        <label>Phone Number(s)</label>
+        <input type="text" id="target" placeholder="+91XXXXXXXXXX  (comma-sep for multi-target)" style="margin-bottom:8px">
+        <div class="grid-2">
+          <div>
+            <label>Country Code</label>
+            <select id="cc"><option value="91">+91 (India)</option><option value="1">+1 (US)</option><option value="44">+44 (UK)</option></select>
+          </div>
+          <div>
+            <label>Attack Type</label>
+            <select id="attack-type"><option value="sms">SMS</option><option value="call">CALL</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="glass">
+        <div class="section-title">> MESSAGE SOURCE</div>
+        <label>Category</label>
+        <select id="category" onchange="onCategoryChange()">
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat.upper() }}</option>
+          {% endfor %}
+        </select>
+        <div style="margin-top:8px">
+          <label>Messages — click to select</label>
+          <div class="chip-group" id="category-chips"></div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Custom Message (overrides category)</label>
+          <textarea id="custom-message" placeholder="Leave empty to use category messages"></textarea>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT: Params + Live Log -->
+    <div>
+      <div class="glass">
+        <div class="section-title">> PARAMETERS</div>
+        <div class="grid-2">
+          <div><label>Count</label><input type="number" id="msg-count" value="10" min="1" max="10000"></div>
+          <div><label>Delay (s)</label><input type="number" id="delay" value="2" min="0.5" step="0.5"></div>
+          <div><label>Threads</label><input type="number" id="threads" value="5" min="1" max="50"></div>
+          <div>
+            <label>Engine</label>
+            <select id="engine-mode">
+              <option value="auto">Auto</option>
+              <option value="threaded">Threaded</option>
+              <option value="sequential">Sequential</option>
+            </select>
+          </div>
+        </div>
+        <div class="toggle-group" style="margin-top:10px">
+          <div class="toggle-item"><input type="checkbox" id="smart-schedule"><label for="smart-schedule">Smart Schedule</label></div>
+        </div>
+      </div>
+      <div class="glass">
+        <div class="section-title">> PROXY & ADVANCED</div>
+        <label>Proxies (comma-separated, http://user:pass@host:port)</label>
+        <input type="text" id="proxies" placeholder="http://user:pass@1.2.3.4:8080, http://..." style="margin-bottom:6px">
+      </div>
+      <div class="glass">
+        <div class="section-title">> LIVE LOG <span id="live-count" style="color:#ff2d95;font-size:0.8em"></span></div>
+        <div class="output-box" id="message-output">
+          <div style="color:rgba(255,255,255,0.2)">Messages will appear here during attack...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="glass">
+    <div class="action-bar">
+      <button class="btn btn-primary" id="btn-launch" onclick="launchAttack()">[ LAUNCH ]</button>
+      <button class="btn btn-danger" id="btn-stop" onclick="stopAttack()" style="display:none">[ STOP ]</button>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="glass">
+    <div class="section-title">> ATTACK STATUS</div>
+    <div class="grid-4">
+      <div class="stat-box"><div class="stat-value" id="stat-sent">0</div><div class="stat-label">SENT</div></div>
+      <div class="stat-box"><div class="stat-value" style="color:#00ff41" id="stat-success">0</div><div class="stat-label">SUCCESS</div></div>
+      <div class="stat-box"><div class="stat-value" style="color:#ff0040" id="stat-fail">0</div><div class="stat-label">FAILED</div></div>
+      <div class="stat-box"><div class="stat-value" style="color:#ff2d95" id="stat-captcha">0</div><div class="stat-label">CAPTCHA</div></div>
+    </div>
+    <div class="progress-bar"><div class="fill" id="progress-fill" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px">
+      <span style="font-size:0.8em;color:rgba(255,255,255,0.4)" id="status-text">Ready</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" style="width:auto;font-size:0.75em;padding:6px 12px" onclick="exportLog('json')">[ EXPORT JSON ]</button>
+        <button class="btn btn-secondary" style="width:auto;font-size:0.75em;padding:6px 12px" onclick="exportLog('csv')">[ EXPORT CSV ]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API MANAGER -->
+  <div class="glass">
+    <div class="section-title">> API MANAGER <span id="api-count" style="font-size:0.7em;color:rgba(255,255,255,0.25)"></span></div>
+    <div class="grid-2">
+      <div>
+        <label>Add API</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <input type="text" id="api-name" placeholder="Name" style="flex:2;min-width:120px">
+          <input type="text" id="api-url" placeholder="URL ({target}, {message})" style="flex:3;min-width:180px">
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <select id="api-type" style="flex:1"><option value="sms">SMS</option><option value="call">CALL</option></select>
+          <select id="api-method" style="flex:1"><option value="POST">POST</option><option value="GET">GET</option></select>
+        </div>
+        <textarea id="api-body" placeholder="Optional JSON body" style="margin-top:6px"></textarea>
+        <button class="btn btn-secondary" onclick="addApi()" style="width:auto;margin-top:6px">[ ADD ]</button>
+      </div>
+      <div>
+        <label>Registered APIs</label>
+        <div id="api-list" style="max-height:160px;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:8px;padding:6px">
+          <div style="color:rgba(255,255,255,0.2);font-size:0.82em">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH DASHBOARD -->
+  <div class="glass">
+    <div class="section-title">> API HEALTH DASHBOARD <button class="btn btn-secondary" style="width:auto;font-size:0.7em;padding:4px 10px;margin-left:8px" onclick="loadHealth()">[ REFRESH ]</button></div>
+    <div class="grid-3" id="health-stats" style="margin-bottom:10px">
+      <div class="stat-box"><div class="stat-value" id="health-total">0</div><div class="stat-label">TOTAL APIs</div></div>
+      <div class="stat-box"><div class="stat-value" style="color:#00ff41" id="health-alive">0</div><div class="stat-label">ALIVE</div></div>
+      <div class="stat-box"><div class="stat-value" style="color:#ff0040" id="health-dead">0</div><div class="stat-label">DEAD</div></div>
+    </div>
+    <div id="health-list" style="max-height:150px;overflow-y:auto;font-size:0.75em;background:rgba(0,0,0,0.3);border-radius:8px;padding:6px">
+      <div style="color:rgba(255,255,255,0.2)">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io@4.8.0/client-dist/socket.io.min.js"></script>
+<script>
+// ─── Matrix rain ───────────────────────────────────────────────────────────
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const chars = '01アイウエオカキクケコサシスセソ';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(10,10,10,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#00ff41';
+  ctx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+let currentAttackIds = [];
+let pollInterval = null;
+
+// ─── Category ──────────────────────────────────────────────────────────────
+function onCategoryChange() {
+  const cat = document.getElementById('category').value;
+  const chips = document.getElementById('category-chips');
+  fetch('/api/category/' + cat)
+    .then(r => r.json())
+    .then(msgs => {
+      chips.innerHTML = msgs.map(m => {
+        const preview = esc(m.substring(0, 30));
+        const safe = esc(JSON.stringify(m));
+        return `<button class="chip" onclick='setCustomMsg(${safe})'>${preview}...</button>`;
+      }).join('');
+    })
+    .catch(e => console.error(e));
+}
+
+function setCustomMsg(msg) {
+  document.getElementById('custom-message').value = msg;
+}
+
+// ─── Launch ────────────────────────────────────────────────────────────────
+function launchAttack() {
+  const target = document.getElementById('target').value.trim();
+  if (!target) { toast('Enter at least one target phone number', 'error'); return; }
+
+  document.getElementById('btn-launch').disabled = true;
+  document.getElementById('btn-stop').style.display = 'inline-block';
+  document.getElementById('message-output').innerHTML = '';
+
+  const customMsg = document.getElementById('custom-message').value.trim();
+  let messages = [];
+  if (customMsg) {
+    messages = [customMsg];
+  } else {
+    const cat = document.getElementById('category').value;
+    fetch('/api/category/' + cat)
+      .then(r => r.json())
+      .then(msgs => {
+        messages = msgs;
+        doLaunch(messages);
+      })
+      .catch(e => { toast('Failed to load category: ' + e.message, 'error'); stopAttack(); });
+    return;
+  }
+  doLaunch(messages);
+}
+
+function doLaunch(messages) {
+  document.getElementById('status-text').textContent = 'Launching...';
+  const cc = document.getElementById('cc').value;
+
+  const payload = {
+    type: document.getElementById('attack-type').value,
+    targets: document.getElementById('target').value.trim(),
+    cc: cc,
+    count: parseInt(document.getElementById('msg-count').value) || 10,
+    delay: parseFloat(document.getElementById('delay').value) || 2,
+    threads: parseInt(document.getElementById('threads').value) || 5,
+    smart_schedule: document.getElementById('smart-schedule').checked,
+    engine_mode: document.getElementById('engine-mode').value,
+    messages: messages,
+    proxies: document.getElementById('proxies').value.trim(),
+  };
+
+  fetch('/api/attack', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) { toast('Attack error: ' + data.error, 'error'); stopAttack(); return; }
+    currentAttackIds = data.attack_ids || [];
+    if (currentAttackIds.length === 0) { toast('No attack IDs returned', 'error'); stopAttack(); return; }
+    toast('Attack launched — ' + currentAttackIds.length + ' target(s)', 'success');
+    document.getElementById('status-text').textContent = 'Running — ' + currentAttackIds.length + ' target(s)';
+    if (socket && socket.connected) {
+      currentAttackIds.forEach(id => socket.emit('subscribe_attack', { attack_id: id }));
+    }
+    pollInterval = setInterval(() => pollStatus(), 800);
+  })
+  .catch(e => { toast('Launch failed: ' + e.message, 'error'); stopAttack(); });
+}
+
+function stopAttack() {
+  if (pollInterval) clearInterval(pollInterval);
+  document.getElementById('btn-launch').disabled = false;
+  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('status-text').textContent = 'Stopped';
+  // Cancel all active
+  currentAttackIds.forEach(id => {
+    fetch('/api/attack/' + id + '/stop', { method: 'POST' }).catch(function(){});
+  });
+  currentAttackIds = [];
+}
+
+function pollStatus() {
+  if (currentAttackIds.length === 0) return;
+  // Aggregate status across all attack IDs
+  let sent = 0, success = 0, fail = 0, captcha = 0, total = 0;
+  let completed = 0, errored = 0;
+  let lastMsg = '', lastName = '';
+
+  const remaining = currentAttackIds.filter(id => {
+    // We'll send a batch request using fetch for each (or use the first one's aggregate)
+    return true;
+  });
+
+  // Use the first attack ID for status display, aggregate via separate calls
+  const promises = currentAttackIds.map(id =>
+    fetch('/api/attack/' + id + '/status').then(r => r.json()).then(d => {
+      sent += d.sent || 0;
+      success += d.success || 0;
+      fail += d.fail || 0;
+      total += d.total || 0;
+      if (d.captcha) captcha += d.captcha || 0;
+      if (d.status === 'completed') completed++;
+      if (d.status === 'error') errored++;
+      if (d.last_message) lastName = d.last_message;
+      if (d.last_text) lastMsg = d.last_text;
+    }).catch(function(){})
+  );
+
+  Promise.all(promises).then(function() {
+    document.getElementById('stat-sent').textContent = sent;
+    document.getElementById('stat-success').textContent = success;
+    document.getElementById('stat-fail').textContent = fail;
+    document.getElementById('stat-captcha').textContent = captcha || 0;
+    const t = total || 1;
+    document.getElementById('progress-fill').style.width = Math.min(100, (sent / t) * 100) + '%';
+    document.getElementById('live-count').textContent = '(' + sent + '/' + t + ')';
+
+    if (lastName || lastMsg) {
+      const out = document.getElementById('message-output');
+      const div = document.createElement('div');
+      div.className = 'msg-item live-msg';
+      div.textContent = '[' + sent + '] ' + (lastName ? lastName : lastMsg);
+      out.appendChild(div);
+      out.scrollTop = out.scrollHeight;
+    }
+
+    const allDone = (completed + errored) >= currentAttackIds.length;
+    if (allDone) {
+      clearInterval(pollInterval);
+      document.getElementById('btn-launch').disabled = false;
+      document.getElementById('btn-stop').style.display = 'none';
+      document.getElementById('status-text').textContent = 'Completed — S:' + success + ' F:' + fail;
+      toast('Attack completed!', 'success');
+    }
+  });
+}
+
+// ─── Export ─────────────────────────────────────────────────────────────────
+function exportLog(fmt) {
+  if (currentAttackIds.length === 0) { toast('No active/completed attack to export', 'error'); return; }
+  const id = currentAttackIds[0];
+  window.open('/api/attack/' + id + '/export?format=' + fmt, '_blank');
+}
+
+// ─── API Manager ────────────────────────────────────────────────────────────
+function loadApis() {
+  fetch('/api/apis')
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('api-list');
+      list.innerHTML = data.map((api, idx) =>
+        '<div class="api-item">' +
+          '<span><span class="api-type">' + esc(api.type.toUpperCase()) + '</span> <span class="api-name">' + esc(api.name) + '</span></span>' +
+          '<span><button class="btn btn-danger" style="padding:2px 5px;font-size:0.65em;width:auto" onclick="removeApi(\'' + esc(api.type) + '\',\'' + esc(api.cc) + '\',' + idx + ')">[X]</button></span>' +
+        '</div>'
+      ).join('') || '<div style="color:rgba(255,255,255,0.2)">No APIs</div>';
+      document.getElementById('api-count').textContent = '(' + data.length + ' registered)';
+    })
+    .catch(e => console.error(e));
+}
+
+function addApi() {
+  const name = document.getElementById('api-name').value.trim();
+  const url = document.getElementById('api-url').value.trim();
+  if (!name || !url) { toast('Name and URL required', 'error'); return; }
+  fetch('/api/apis', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      name, url, method: document.getElementById('api-method').value,
+      type: document.getElementById('api-type').value
+    })
+  }).then(r => r.json()).then(function() {
+    loadApis();
+    document.getElementById('api-name').value = '';
+    document.getElementById('api-url').value = '';
+    toast('API added', 'success');
+  }).catch(e => toast('Failed: ' + e.message, 'error'));
+}
+
+function removeApi(type, cc, index) {
+  fetch('/api/apis/' + type + '/' + cc + '/' + index, { method: 'DELETE' })
+    .then(r => r.json()).then(function() { loadApis(); })
+    .catch(e => console.error(e));
+}
+
+// ─── Health Dashboard ───────────────────────────────────────────────────────
+function loadHealth() {
+  fetch('/api/health/detailed')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('health-total').textContent = data.total_apis || 0;
+      document.getElementById('health-alive').textContent = data.alive || 0;
+      document.getElementById('health-dead').textContent = data.dead || 0;
+      const list = document.getElementById('health-list');
+      if (data.apis && data.apis.length) {
+        list.innerHTML = data.apis.map(a => {
+          const score = a.score || 0;
+          const cls = score > 60 ? 'health-good' : (score > 30 ? 'health-ok' : 'health-bad');
+          return '<div class="api-item">' +
+            '<span><span class="health-score ' + cls + '">' + score + '</span> ' +
+            '<span class="api-name">' + esc(a.name) + '</span></span>' +
+            '<span style="font-size:0.7em;color:rgba(255,255,255,0.4)">' + esc(a.type) + '</span>' +
+          '</div>';
+        }).join('');
+      } else {
+        list.innerHTML = '<div style="color:rgba(255,255,255,0.2)">No API data yet</div>';
+      }
+    })
+    .catch(e => console.error(e));
+}
+
+// ─── SocketIO ───────────────────────────────────────────────────────────────
+let socket = null;
+function connectSocket() {
+  try {
+    socket = io({ transports: ['websocket', 'polling'] });
+    socket.on('connect', function() { console.log('SocketIO connected'); });
+    socket.on('attack_update', function(data) {
+      if (!currentAttackIds.includes(data.attack_id)) return;
+      document.getElementById('stat-sent').textContent = data.sent || 0;
+      document.getElementById('stat-success').textContent = data.success || 0;
+      document.getElementById('stat-fail').textContent = data.fail || 0;
+      const total = data.total || 1;
+      const sent = data.sent || 0;
+      document.getElementById('progress-fill').style.width = Math.min(100, (sent / total) * 100) + '%';
+      document.getElementById('live-count').textContent = '(' + sent + '/' + total + ')';
+      if (data.last_text && data.last_text.length > 0) {
+        const out = document.getElementById('message-output');
+        const div = document.createElement('div');
+        div.className = 'msg-item';
+        div.textContent = '[' + sent + '] ' + data.last_text;
+        out.appendChild(div);
+        out.scrollTop = out.scrollHeight;
+      }
+      if (data.status === 'completed' || data.status === 'error') {
+        toast(data.status === 'completed' ? 'Attack completed!' : 'Attack failed', data.status === 'completed' ? 'success' : 'error');
+      }
+    });
+  } catch(e) { console.warn('SocketIO fallback:', e); }
+}
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg, type, duration) {
+  type = type || 'info';
+  duration = duration || 4000;
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(function() { el.remove(); }, duration);
+}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+onCategoryChange();
+loadApis();
+loadHealth();
+connectSocket();
+setInterval(loadHealth, 60000); // auto-refresh health every 60s
+</script>
+</body>
+</html>

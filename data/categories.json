@@ -1,0 +1,184 @@
+{
+  "prank": [
+    "Your phone has been hacked! Send 1000 rupees to unlock.",
+    "This is the police! You are under surveillance.",
+    "I can see you through your camera right now.",
+    "Your social media accounts have been compromised.",
+    "Your device has been infected with a virus."
+  ],
+  "love": [
+    "I miss you so much, thinking about you all day.",
+    "You are the most beautiful person I have ever met.",
+    "My world lights up every time I see your message.",
+    "I cannot stop thinking about our memories together.",
+    "You make my heart skip a beat every single time."
+  ],
+  "hate": [
+    "Stop calling me, I never want to hear from you again.",
+    "You are a complete disappointment to everyone around you.",
+    "I wish I never met you. Stay away from my life.",
+    "Your existence is an annoyance to society.",
+    "Nobody likes you, just fade away quietly."
+  ],
+  "otp": [
+    "Your OTP for transaction is 452891. Do not share this code.",
+    "OTP: 782341. Your login verification code is valid for 5 minutes.",
+    "Use 639024 to verify your account. Never share this OTP.",
+    "Your one-time password is 514873. Expires in 10 minutes.",
+    "Verification code: 907265. This code will expire shortly."
+  ],
+  "marketing": [
+    "Congratulations! You won a free iPhone 15! Claim now.",
+    "Limited offer: 90% discount on all products today only!",
+    "Your subscription has been activated. Total due: Rs 4999.",
+    "You have been selected for a special cash prize of Rs 50,000!",
+    "Free vacation package waiting for you. Confirm your booking now."
+  ],
+  "emergency": [
+    "Your bank account has been blocked due to suspicious activity.",
+    "Your Aadhaar card will be deactivated in 24 hours. Update now.",
+    "Your electricity connection will be cut for non-payment.",
+    "Legal notice has been filed against you. Respond immediately.",
+    "Your SIM card will be deactivated. Verify your identity now."
+  ],
+  "bank-alert": [
+    "Alert: A transaction of Rs 24,999 was made from your account.",
+    "Your debit card has been temporarily locked due to unusual activity.",
+    "New login detected from an unrecognized device. If not you, block now.",
+    "Your account has been credited with Rs 15,000. Reference: TXN78412.",
+    "UPI PIN change request received. Use OTP 382917 to confirm."
+  ],
+  "delivery": [
+    "Your package is out for delivery! Track: FDX928GH.",
+    "Delivery failed because no one was at the address. Reschedule now.",
+    "Your order has been shipped. Expected delivery: tomorrow.",
+    "Our delivery driver is 5 minutes away. Please be ready to collect.",
+    "Parcel with tracking ID SWIGGY-842 has been picked up."
+  ],
+  "dating": [
+    "You have a new match! Someone nearby likes your profile.",
+    "Hi! I saw your profile and think we would really hit it off.",
+    "You received a rose from a secret admirer. Tap to see who.",
+    "Your profile was viewed 47 times today. Upgrade to see who.",
+    "Don't keep them waiting! Reply to your match before it expires."
+  ],
+  "survey": [
+    "Quick 2-minute survey about your recent experience - earn Rs 500 voucher!",
+    "We value your opinion! Tell us how we can improve our services.",
+    "You have been selected for a paid market research study.",
+    "Help us improve! Share your feedback and win a prize.",
+    "Customer satisfaction survey - please take a moment to respond."
+  ],
+  "phishing-sim": [
+    "Alert: Suspicious login attempt from Mumbai, India. Secure now.",
+    "Your Netflix account has been suspended. Verify payment to reactivate.",
+    "Package held at customs. Pay Rs 499 clearance fee to release.",
+    "Your Instagram account will be deleted due to policy violation.",
+    "Microsoft security alert: your computer has been infected with malware."
+  ],
+  "appointment": [
+    "Reminder: Your dentist appointment is tomorrow at 10:00 AM.",
+    "Your consultation has been confirmed for Friday at 3:30 PM.",
+    "Reschedule request received. New slot: Tuesday 11:15 AM.",
+    "Doctor is running 20 minutes late. Please wait for your turn.",
+    "Annual health checkup reminder. Book your slot before it expires."
+  ],
+  "ticket": [
+    "Your movie tickets for 'Pushpa 3' are confirmed! Show: 7:30 PM.",
+    "Flight AI-202 to Delhi is boarding at Gate 12. Hurry!",
+    "Concert tickets booked! Your QR code is attached.",
+    "Train PNR: 4682973511 is confirmed. Coach S5, Seat 42.",
+    "Bus ticket for Mumbai-Pune is confirmed. Departure: 6:00 AM."
+  ],
+  "promotion": [
+    "50% off on your next order! Use code: SAVE50.",
+    "Buy 1 Get 1 Free on all pizzas this weekend only!",
+    "Exclusive member offer: Rs 200 cashback on min purchase of Rs 999.",
+    "Flat 40% off on premium subscription. Upgrade now!",
+    "Free shipping on orders above Rs 499. Shop now!"
+  ],
+  "security": [
+    "Your password was changed successfully. If this wasn't you, reset now.",
+    "New device logged into your account. Secure your account immediately.",
+    "Two-factor authentication has been enabled for your account.",
+    "Security question updated. Confirmation code: 729384.",
+    "Your account was locked due to multiple failed login attempts."
+  ],
+  "subscription": [
+    "Your premium subscription will expire in 3 days. Auto-renew on?",
+    "Welcome to Pro plan! Your billing cycle starts today.",
+    "Subscription upgraded successfully. New features unlocked!",
+    "Your free trial ends tomorrow. Upgrade to continue access.",
+    "Payment failed for subscription renewal. Update your payment method."
+  ],
+  "payment": [
+    "Payment of Rs 1,299 received successfully. Thank you!",
+    "Your EMI of Rs 4,567 is due on 15th. Auto-pay will be deducted.",
+    "Refund of Rs 2,499 has been initiated. Will credit in 3-5 days.",
+    "Invoice INV-2024-8923 is ready. Total due: Rs 8,740.",
+    "UPI payment of Rs 599 to Flipkart is successful. UPI Ref: 82917384."
+  ],
+  "bill": [
+    "Your electricity bill for this month is Rs 2,340. Due: 10th.",
+    "Water bill payment reminder: Rs 890 due in 5 days.",
+    "Your mobile bill of Rs 499 has been paid successfully.",
+    "Internet bill is overdue by 7 days. Late fee of Rs 100 applicable.",
+    "Credit card bill statement generated. Minimum due: Rs 2,000."
+  ],
+  "education": [
+    "Your exam results are published! Check your score now.",
+    "Admission offer from IIT Delhi - confirm your seat within 7 days.",
+    "Assignment submission deadline is tomorrow at 11:59 PM.",
+    "Your scholarship application has been approved!",
+    "Class schedule for next semester is now available."
+  ],
+  "healthcare": [
+    "Your lab reports are ready. Download from patient portal.",
+    "Vaccination appointment scheduled for Saturday at 2:00 PM.",
+    "Your health insurance claim has been approved. Amount: Rs 15,000.",
+    "Medical certificate uploaded successfully. Reference: MED-782341.",
+    "Annual health checkup reminder: Your last visit was 11 months ago."
+  ],
+  "insurance": [
+    "Your LIC premium of Rs 5,670 is due on 20th of this month.",
+    "Motor insurance policy expires in 30 days. Renew now for continuity.",
+    "Claim filed successfully. Reference number: CLM-873421.",
+    "Your travel insurance policy has been activated for upcoming trip.",
+    "Health insurance cover has been enhanced. New sum insured: Rs 10L."
+  ],
+  "job": [
+    "Congratulations! You have been shortlisted for an interview.",
+    "Your resume has been received. We will contact you within 5 days.",
+    "Offer letter from Google India is ready for review. Accept by Friday.",
+    "Interview scheduled for Thursday at 11:00 AM. Join link attached.",
+    "Your application status has been updated. Check your dashboard."
+  ],
+  "social": [
+    "Your friend request was accepted! Say hello to your new connection.",
+    "Someone tagged you in a photo. Check your notifications.",
+    "You received a new follower. View their profile?",
+    "Your post got 100+ likes! Keep engaging with your audience.",
+    "New message from your connection. Reply now!"
+  ],
+  "travel": [
+    "Your booking for Grand Hyatt Mumbai is confirmed. Check-in: 15th Dec.",
+    "Flight delayed by 2 hours. New departure: 8:30 PM.",
+    "Your passport application status: Processing. Expected: 2 weeks.",
+    "Visa application approved! Travel documents ready for pickup.",
+    "Cab booked from Airport to Hotel. Driver: Rajesh, DL: MH01AB1234."
+  ],
+  "finance": [
+    "Your credit score has increased by 25 points! Current: 782.",
+    "Mutual fund SIP of Rs 5,000 has been debited successfully.",
+    "Fixed deposit matured. Amount Rs 1,50,000 credited to savings.",
+    "Tax refund of Rs 12,340 has been processed by IT department.",
+    "NRI remittance of USD 1,000 received. Forex rate: 83.42."
+  ],
+  "charity": [
+    "Thank you for your generous donation of Rs 2,500! Tax receipt attached.",
+    "Your monthly sponsorship for a child's education has been activated.",
+    "Fundraiser for disaster relief has reached 75% of target. Donate now.",
+    "You have been recognized as a 'Changemaker' for your contributions.",
+    "Volunteer registration confirmed. Orientation on Saturday at 10 AM."
+  ]
+}

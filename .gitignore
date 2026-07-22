@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+*.db
+venv/
+.venv/
+data/spectra7.db
+*.log
+out/
+smoketest_out.txt
