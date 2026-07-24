@@ -295,7 +295,6 @@ select option { background: #1a1a1a; color: #00ff41; }
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/socket.io@4.8.0/client-dist/socket.io.min.js"></script>
 <script>
 // ─── Matrix rain ───────────────────────────────────────────────────────────
 const canvas = document.getElementById('matrix-canvas');
@@ -406,9 +405,6 @@ function doLaunch(messages) {
     if (currentAttackIds.length === 0) { toast('No attack IDs returned', 'error'); stopAttack(); return; }
     toast('Attack launched — ' + currentAttackIds.length + ' target(s)', 'success');
     document.getElementById('status-text').textContent = 'Running — ' + currentAttackIds.length + ' target(s)';
-    if (socket && socket.connected) {
-      currentAttackIds.forEach(id => socket.emit('subscribe_attack', { attack_id: id }));
-    }
     pollInterval = setInterval(() => pollStatus(), 800);
   })
   .catch(e => { toast('Launch failed: ' + e.message, 'error'); stopAttack(); });
@@ -557,36 +553,6 @@ function loadHealth() {
     .catch(e => console.error(e));
 }
 
-// ─── SocketIO ───────────────────────────────────────────────────────────────
-let socket = null;
-function connectSocket() {
-  try {
-    socket = io({ transports: ['websocket', 'polling'] });
-    socket.on('connect', function() { console.log('SocketIO connected'); });
-    socket.on('attack_update', function(data) {
-      if (!currentAttackIds.includes(data.attack_id)) return;
-      document.getElementById('stat-sent').textContent = data.sent || 0;
-      document.getElementById('stat-success').textContent = data.success || 0;
-      document.getElementById('stat-fail').textContent = data.fail || 0;
-      const total = data.total || 1;
-      const sent = data.sent || 0;
-      document.getElementById('progress-fill').style.width = Math.min(100, (sent / total) * 100) + '%';
-      document.getElementById('live-count').textContent = '(' + sent + '/' + total + ')';
-      if (data.last_text && data.last_text.length > 0) {
-        const out = document.getElementById('message-output');
-        const div = document.createElement('div');
-        div.className = 'msg-item';
-        div.textContent = '[' + sent + '] ' + data.last_text;
-        out.appendChild(div);
-        out.scrollTop = out.scrollHeight;
-      }
-      if (data.status === 'completed' || data.status === 'error') {
-        toast(data.status === 'completed' ? 'Attack completed!' : 'Attack failed', data.status === 'completed' ? 'success' : 'error');
-      }
-    });
-  } catch(e) { console.warn('SocketIO fallback:', e); }
-}
-
 // ─── Toast ──────────────────────────────────────────────────────────────────
 function toast(msg, type, duration) {
   type = type || 'info';
@@ -603,7 +569,6 @@ function toast(msg, type, duration) {
 onCategoryChange();
 loadApis();
 loadHealth();
-connectSocket();
 setInterval(loadHealth, 60000); // auto-refresh health every 60s
 </script>
 </body>

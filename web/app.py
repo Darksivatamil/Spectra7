@@ -13,7 +13,6 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_socketio import SocketIO, emit
 
 from utils.logger import init_db, log_attack, update_attack, log_api_call, DB_PATH
 from utils.validators import validate_count, validate_phone
@@ -38,9 +37,6 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 login_manager.init_app(app)
 csrf = CSRFProtect(app)
-
-# SocketIO for real-time updates (async_mode='threading' for Windows compat)
-socketio = SocketIO(app, cors_allowed_origins="*" if os.getenv("CORS_ORIGINS", "").strip() else [], async_mode="threading", logger=False, engineio_logger=False)
 
 storage_uri = os.getenv("REDIS_URL") or "memory://"
 limiter = Limiter(
@@ -260,10 +256,6 @@ def _run_attack(attack_id, attack_type, cc, target, count,
                 "total": total, "last_message": api_name, "last_text": last_msg,
                 "status": "running", "ts": time.time(),
             }
-        socketio.emit("attack_update", {
-            "attack_id": attack_id, "sent": sent, "success": success, "fail": failed,
-            "total": total, "last_message": api_name, "last_text": last_msg, "status": "running",
-        }, room=f"attack_{attack_id}")
 
     def ai_gen(idx=0, total=1):
         return messages[idx] if idx < len(messages) else (messages[-1] if messages else "")
@@ -280,9 +272,6 @@ def _run_attack(attack_id, attack_type, cc, target, count,
             if attack_id in attack_progress:
                 attack_progress[attack_id].update(results)
                 attack_progress[attack_id]["status"] = "completed"
-        socketio.emit("attack_update", {
-            "attack_id": attack_id, "status": "completed", **results,
-        }, room=f"attack_{attack_id}")
         update_attack(attack_id, results.get("success", 0), results.get("failed", 0), "completed")
     except Exception as e:
         traceback.print_exc()
@@ -290,9 +279,6 @@ def _run_attack(attack_id, attack_type, cc, target, count,
             if attack_id in attack_progress:
                 attack_progress[attack_id]["status"] = "error"
                 attack_progress[attack_id]["error"] = str(e)
-        socketio.emit("attack_update", {
-            "attack_id": attack_id, "status": "error", "error": str(e),
-        }, room=f"attack_{attack_id}")
         update_attack(attack_id, 0, count, "error")
 
 
@@ -408,23 +394,6 @@ def api_remove_api_route(api_type, cc, index):
         return jsonify({"error": "Unauthorized"}), 401
     remove_api(api_type, cc, index)
     return jsonify({"status": "removed"})
-
-
-
-@socketio.on("connect")
-def _socket_connect():
-    emit("connected", {"status": "ok"})
-
-
-@socketio.on("subscribe_attack")
-def _subscribe_attack(data):
-    """Client subscribes to an attack_id for real-time updates."""
-    attack_id = data.get("attack_id")
-    if attack_id:
-        # Join a room named after the attack
-        from flask_socketio import join_room
-        join_room(f"attack_{attack_id}")
-        emit("subscribed", {"attack_id": attack_id})
 
 
 # ── Security headers ────────────────────────────────────────────────────────
