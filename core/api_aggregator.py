@@ -1,19 +1,19 @@
 """API aggregator — load, probe, cycle."""
 import json, os, re, time, threading, random
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from utils.logger import log_api_call, update_api_status
 from core.rotator import record_api_result, get_scorer, get_proxy_pool
 
 _CAPTCHA_PATTERNS = [
-    re.compile(r"captcha|recaptcha|verify|security.check|bot.detection", re.I),
-    re.compile(r"g-recaptcha|hcaptcha|turnstile", re.I),
+    re.compile(r"g-recaptcha|hcaptcha|turnstile|captcha.challenge|cf-turnstile", re.I),
+    re.compile(r"please.*(solve|complete).*captcha|captcha.*required", re.I),
 ]
 
 def _detect_captcha(text):
-    for pat in _CAPTCHA_PATTERNS:
-        if pat.search(text):
-            return True
-    return False
+    t = text[:2000].lower()
+    return any(p.search(t) for p in _CAPTCHA_PATTERNS)
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 API_FILE = os.path.join(DATA_DIR, "apis.json")
@@ -135,11 +135,11 @@ def probe_api(api_config, cc="91", target="9876543210", timeout=8):
                     headers[hk] = hv
 
         if json_body:
-            r = requests.post(url, json=json_body, params=params, headers=headers, timeout=timeout)
+            r = requests.post(url, json=json_body, params=params, headers=headers, timeout=timeout, verify=False)
         elif api_config["method"].upper() == "POST":
-            r = requests.post(url, data=data, params=params, headers=headers, timeout=timeout)
+            r = requests.post(url, data=data, params=params, headers=headers, timeout=timeout, verify=False)
         else:
-            r = requests.get(url, params=params, headers=headers, timeout=timeout)
+            r = requests.get(url, params=params, headers=headers, timeout=timeout, verify=False)
 
         ident = api_config.get("identifier", "")
         ok = _match_identifier(ident, r.text, r.status_code)
@@ -208,7 +208,8 @@ def send_request(api_config, cc, target, delay=0, message=None, attack_id=None):
     config = interpolate(api_config, cc, target, message)
     identifier = config.pop("identifier", "")
     name = config.pop("name", None)
-    config["timeout"] = config.get("timeout", 15)
+    config["timeout"] = config.get("timeout", 30)
+    config["verify"] = False
     perma_headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0"
     }

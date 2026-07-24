@@ -54,11 +54,13 @@ class ThreadedDispatcher(BaseDispatcher):
                         success += 1
                     else:
                         failed += 1
-                        if result.get("error"):
-                            errors.append(result["error"])
+                        err = result.get("error") or result.get("code", "")
+                        if err:
+                            errors.append(str(err))
                     # Always recycle the API so the pool never empties
                     pool.append(api)
+                    last_info = result.get("error") or result.get("api", "?") if result["status"] != "success" else result.get("api", "?")
                     self._report(sent, success, failed, self.count,
-                                 result.get("api", "?"), msg or "")
+                                 result.get("api", "?"), msg or last_info)
 
         return DispatcherResult(sent, success, failed, errors)
