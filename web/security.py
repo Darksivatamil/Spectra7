@@ -18,12 +18,11 @@ class User(UserMixin):
 login_manager = LoginManager()
 login_manager.login_view = "login"
 
-ACTIVE_USERS = {}
-
 
 @login_manager.user_loader
 def load_user(user_id):
-    return ACTIVE_USERS.get(user_id)
+    # Only "admin" user exists — if session has this ID, it's valid
+    return User() if user_id else None
 
 
 @login_manager.unauthorized_handler
@@ -34,11 +33,9 @@ def unauthorized():
 
 
 def get_dashboard_password():
-    # 1. Try Environment variable
     pw = os.environ.get("DASHBOARD_PASSWORD")
     if pw:
         return pw.strip()
-    # 2. Try .env file (load if not already loaded)
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
     if os.path.exists(env_path):
         load_dotenv(dotenv_path=env_path, override=False)
@@ -55,15 +52,12 @@ def perform_login(password_attempt):
     if password_attempt is None:
         return False, "Invalid password"
     if password_attempt.strip() == expected:
-        u = User()
-        ACTIVE_USERS[u.id] = u
-        login_user(u, remember=False)
+        login_user(User(), remember=True)
         return True, None
     return False, "Invalid password"
 
 
 def perform_logout():
-    ACTIVE_USERS.pop(current_user.id, None)
     logout_user()
 
 
