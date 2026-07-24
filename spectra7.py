@@ -71,14 +71,12 @@ def main():
     init_db()
 
     port = int(os.getenv("PORT", 10000))
-    host = os.getenv("HOST", "0.0.0.0")
-
-    print(f"[*] Binding: {host}:{port}")
+    print(f"[*] Binding: 0.0.0.0:{port}")
 
     from web.app import app
     print(f"[*] Starting Spectra7 (waitress)...")
     from waitress import serve
-    serve(app, host=host, port=port)
+    serve(app, host="0.0.0.0", port=port)
 
 
 if __name__ == "__main__":
